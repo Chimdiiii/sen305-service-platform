@@ -1,0 +1,11 @@
+# Secrets
+#
+.env
+.env.*
+/venv/
+/ven/
+!.env.example
+'
+
+# Local database
+db.sqlite3
