@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #local files
     'core.apps.CoreConfig',
+    'requests_app.apps.RequestsAppConfig',
 ]
 
 MIDDLEWARE = [
