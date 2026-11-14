@@ -1,0 +1,71 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ item.title }} | VUA ServiceDesk{% endblock %}
+
+{% block content %}
+<h1>{{ item.title }}</h1>
+<p><strong>Status:</strong> {{ item.get_status_display }}</p>
+<p><strong>Category:</strong> {{ item.category.name }}</p>
+<p><strong>Requester:</strong> {{ item.requester.username }}</p>
+<p><strong>Location:</strong> {{ item.location }}</p>
+<p><strong>Priority:</strong> {{ item.priority }}</p>
+<p><strong>Description:</strong> {{ item.description }}</p>
+
+{% if user == item.requester or user.is_staff %}
+    <p><a href="{% url 'requests:edit' item.id %}">Edit Request</a></p>
+{% endif %}
+
+{% if work_order %}
+    <hr>
+    <h2>Work Order</h2>
+    <p><strong>Assigned Technician:</strong> {{ work_order.technician.username }}</p>
+    <p><strong>Started At:</strong> {{ work_order.started_at|default:"—" }}</p>
+    <p><strong>Work Notes:</strong> {{ work_order.work_notes|default:"—" }}</p>
+    <p><strong>Completed At:</strong> {{ work_order.completed_at|default:"Pending" }}</p>
+{% endif %}
+
+{% if item.resolved_at %}
+    <hr>
+    <h2>Resolution Details</h2>
+    <p><strong>Resolved At:</strong> {{ item.resolved_at }}</p>
+    <p><strong>Resolution Summary:</strong> {{ item.resolution_summary }}</p>
+{% endif %}
+
+{% if can_assign %}
+    <hr>
+    <h2>Assign Technician</h2>
+    <form method="post" action="{% url 'requests:assign' item.id %}">
+        {% csrf_token %}
+        {{ assign_form.as_p }}
+        <button type="submit">Assign Request</button>
+    </form>
+{% endif %}
+
+{% if can_resolve %}
+    <hr>
+    <h2>Resolve Request</h2>
+    <form method="post" action="{% url 'requests:resolve' item.id %}">
+        {% csrf_token %}
+        {{ resolve_form.as_p }}
+        <button type="submit">Mark as Resolved</button>
+    </form>
+{% endif %}
+
+<hr>
+<h2>Comments</h2>
+<ul>
+    {% for comment in comments %}
+        <li><strong>{{ comment.author.username }}</strong> ({{ comment.created_at }}): {{ comment.body }}</li>
+    {% empty %}
+        <li>No comments yet.</li>
+    {% endfor %}
+</ul>
+
+<form method="post" action="{% url 'requests:comment' item.id %}">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">Post Comment</button>
+</form>
+
+<p><a href="{% url 'requests:list' %}">Back to Requests</a></p>
+{% endblock %}
